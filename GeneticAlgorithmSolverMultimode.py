@@ -15,11 +15,11 @@ from copy import copy
 from random import random, randint
 
 def negative_leftover(problem, mode_assignment):
-    leftovers = [leftover_capacity(problem, resource, mode_assignment) for resource in problem.non_renewable_resources]
+    leftovers = [leftover_capacity(problem, resource, mode_assignment) for resource in problem.nonrenewable_resources]
     return sum(-leftover for leftover in leftovers if leftover < 0 )
 
 def leftover_capacity(problem, resource, mode_assignment):
-    return problem.non_renewable_resources[resource] - sum(mode.demand[resource] for mode in mode_assignment)
+    return problem.nonrenewable_resources[resource] - sum(mode.demand[resource] for mode in mode_assignment)
 
 def evaluate_sgs_function(SolutionClass, problem_instance, sgs):
     #TODO: make test of evaluation function

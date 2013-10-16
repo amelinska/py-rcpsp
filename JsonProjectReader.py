@@ -41,12 +41,17 @@ class ModeParser(object):
 
 
 class ActivityParser(object):
-    def __init__(self, name, jsonDictionary):
-        modes = []
-        for k,v in jsonDictionary.iteritems():
-            mode = ModeParser(k, v).parse()
-            modes.append(mode)
-        self.activity = MultiModeClasses.Activity(name, modes)
+    def __init__(self, name, jsonDictionary, dummy_start, dummy_end):
+        if name == dummy_start:
+            self.activity = MultiModeClasses.Activity.DUMMY_START
+        elif name == dummy_end:
+            self.activity = MultiModeClasses.Activity.DUMMY_END
+        else:
+            modes = []
+            for k,v in jsonDictionary.iteritems():
+                mode = ModeParser(k, v).parse()
+                modes.append(mode)
+            self.activity = MultiModeClasses.Activity(name, modes)
 
     def parse(self):
         return self.activity
@@ -54,10 +59,10 @@ class ActivityParser(object):
 
 class ActivitiesParser(object):
     ACTIVITIES_TAG = "activities"
-    def __init__(self, jsonDictionary):
+    def __init__(self, jsonDictionary, dummy_start, dummy_end):
         self.result = {}
         for key, activityJson in jsonDictionary.iteritems():
-            self.result[key] = ActivityParser(key, activityJson).parse()
+            self.result[key] = ActivityParser(key, activityJson, dummy_start, dummy_end).parse()
 
     def parse(self):
         return self.result
@@ -72,6 +77,17 @@ class RelationParser(object):
         return self.jsonDictionary
 
 
+class DummyNodesParser(object):
+    DUMMY_START_TAG = "dummy_start"
+    DUMMY_END_TAG = "dummy_end"
+
+    def __init__(self, jsonDictionary):
+        self.dummy_start = jsonDictionary[self.DUMMY_START_TAG]
+        self.dummy_end = jsonDictionary[self.DUMMY_END_TAG]
+
+    def parse(self):
+        return self.dummy_start, self.dummy_end
+
 class MultimodeParser(ProjectParser):
     def __init__(self, jsonDictionary):
         self.jsonDictionary = jsonDictionary
@@ -81,7 +97,9 @@ class MultimodeParser(ProjectParser):
         renewable_resources = parser.parse()
         parser = ResourceParser(self.jsonDictionary[ResourceParser.NON_RENEWABLE_RESOURCES_TAG])
         non_renewable_resources = parser.parse()
-        activity_dictionary = ActivitiesParser(self.jsonDictionary[ActivitiesParser.ACTIVITIES_TAG]).parse()
+        dummy_start, dummy_end = DummyNodesParser(self.jsonDictionary).parse()
+        activity_dictionary = \
+            ActivitiesParser(self.jsonDictionary[ActivitiesParser.ACTIVITIES_TAG], dummy_start, dummy_end).parse()
         relation_dictionary = RelationParser(self.jsonDictionary[RelationParser.GRAPH_PRECEDENCE_TAG]).parse()
         activity_graph = self._createGraph(activity_dictionary, relation_dictionary)
         return MultiModeClasses.Problem(activity_graph, renewable_resources, non_renewable_resources)
