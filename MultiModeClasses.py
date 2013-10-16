@@ -54,7 +54,8 @@ class Activity(object):
     def __init__(self, name, mode_list):
         self.mode_list = mode_list
         self.name = name
-        
+        self.mode_dict = {mode.name : mode for mode in mode_list}
+
     def __repr__(self):
         return self.name
     
@@ -63,7 +64,11 @@ class Activity(object):
     
     def __hash__(self):
         return hash(self.name)
-    
+
+    def get_mode_for_name(self,name):
+
+        return self.mode_dict[name]
+
     def maximal_duration(self):
         return max(x.duration for x in self.mode_list)
     

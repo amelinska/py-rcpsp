@@ -23,6 +23,15 @@ def leftover_capacity(problem, resource, mode_assignment):
 
 def evaluate_sgs_function(SolutionClass, problem_instance, sgs):
     #TODO: make test of evaluation function
+    """
+
+    :param SolutionClass: used to generation the solution from problem_instance and sgs
+    :param problem_instance: instance of the problem
+    :type problem_instance: MultiModeClasses.Problem
+    :param sgs: serial generation scheme, list of tuples of form: (activity:MultiModeClasses.Activity, mode: MultiModeClasses.Mode)
+    :type sgs: list [tuple]
+    :return: single element tuple containing value of evaluation function of sgs (value,)
+    """
     solution = SolutionClass.generate_solution_from_serial_schedule_generation_scheme(sgs, problem_instance)
     #unpack activities and modes list to the separate lists
     activities, modes = zip(*sgs)
