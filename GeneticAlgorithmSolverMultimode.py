@@ -1,5 +1,5 @@
 from GenericEvolutionaryRcpspAlgorithmSolver import GenericGeneticAlgorithmSolver
-from GeneticAlgorithmSolver import find_lowest_index_non_existing_in
+from GeneticAlgorithmSolver import find_lowest_index_non_existing_in, mutate_sgs
 from MultiModeClasses import MultiModeSgsMaker
 
 __author__ = 'bartek'
@@ -12,7 +12,8 @@ Created on 17 Aug 2013
 from MultiModeClasses import Solution
 from deap import creator, base, tools, algorithms
 from copy import copy
-from random import random, randint
+from random import random, randint, choice
+
 
 def negative_leftover(problem, mode_assignment):
     leftovers = [leftover_capacity(problem, resource, mode_assignment) for resource in problem.nonrenewable_resources]
@@ -68,6 +69,11 @@ def modified_crossover_sgs_multimode(sgs_mum, sgs_dad):
     q = randint(0,len(sgs_mum))
     r = randint(0,len(sgs_mum))
     return modified_crossover_sgs_nonrandom_multimode(sgs_mum, sgs_dad, q, r)
+
+def crossover_sgs_multimode(sgs_mum, sgs_dad):
+    q = randint(0,len(sgs_mum))
+    r = randint(0,len(sgs_mum))
+    return crossover_sgs_nonrandom_multimode(sgs_mum, sgs_dad, q, r)
 
 def crossover_activity_list_multimode(sgs_mum, sgs_dad, q):
     len_of_sgs_mum = len(sgs_mum)
@@ -155,3 +161,10 @@ def crossover_sgs_nonrandom_multimode(sgs_mum, sgs_dad, q, r):
     return daugher_sgs, son_sgs
 
 
+def mutate_sgs_multimode(problem, sgs, prob = 0.05):
+    (sgs,) = mutate_sgs(problem, sgs, prob)
+    for t in sgs:
+        activity = t[0]
+        if random.random() < prob:
+            t[1] = choice(activity.mode_list)
+    return (sgs,)
