@@ -4,7 +4,7 @@ Created on 31 Jul 2013
 @author: Aleksandra
 '''
 import unittest
-from GeneticAlgorithmSolverMultimode import crossover_sgs_nonrandom_multimode
+from GeneticAlgorithmSolverMultimode import crossover_sgs_nonrandom_multimode, GeneticAlgorithmSolverMultimode
 
 from MultiModeClasses import Mode, Activity, Solution, Problem, MultiModeSgsMaker
 from NaiveGeneticAlgorithmSolverMultiMode import NaiveGeneticAlgorithmSolverMultiMode
@@ -98,12 +98,18 @@ class Test(unittest.TestCase):
                      (self.activity5, self.mode5)]
         
         
-    def test_solve(self):
+    def test_solve_naive(self):
         solver = NaiveGeneticAlgorithmSolverMultiMode(self.problem)
         solution = solver.solve()
         makespan = self.problem.compute_makespan(solution)
         self.assertEqual(makespan, 13, "Makespan is not equal to 13, in fact it is %d, %s" % (makespan, str(solution)))
-        
+
+    def test_solve(self):
+        solver = GeneticAlgorithmSolverMultimode(self.problem)
+        solution = solver.solve()
+        makespan = self.problem.compute_makespan(solution)
+        self.assertEqual(makespan, 13, "Makespan is not equal to 13, in fact it is %d, %s" % (makespan, str(solution)))
+
         
     def test_check_if_solution_is_feasible(self):
         is_feasible = self.problem.check_if_solution_feasible(self.start_times)  

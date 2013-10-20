@@ -163,8 +163,12 @@ def crossover_sgs_nonrandom_multimode(sgs_mum, sgs_dad, q, r):
 
 def mutate_sgs_multimode(problem, sgs, prob = 0.05):
     (sgs,) = mutate_sgs(problem, sgs, prob)
+    result = creator.Individual()
     for t in sgs:
         activity = t[0]
-        if random.random() < prob:
-            t[1] = choice(activity.mode_list)
-    return (sgs,)
+        if random() < prob:
+            mode = choice(activity.mode_list)
+        else:
+            mode = t[1]
+        result.append((activity, mode))
+    return (result,)
