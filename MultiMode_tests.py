@@ -4,6 +4,7 @@ Created on 31 Jul 2013
 @author: Aleksandra
 '''
 import unittest
+from GeneticAlgorithmSolverMultimode import crossover_sgs_nonrandom_multimode
 
 from MultiModeClasses import Mode, Activity, Solution, Problem, MultiModeSgsMaker
 from NaiveGeneticAlgorithmSolverMultiMode import NaiveGeneticAlgorithmSolverMultiMode
@@ -154,15 +155,15 @@ class Test(unittest.TestCase):
         self.assertEqual(set([x[0] for x in sgs_to_return]), self.problem.non_dummy_activities(), "Sgs should have all activities")
         n = len(sgs_to_return)     
         self.assertTrue(self.problem.is_valid_sgs(sgs_to_return), "Sgs should be valid")
-                             
-                             
-#    def test_crossover_sgs_nonrandom(self):
-#        sgs_mum = [(1, 1),(3, 2),(2, 3),(5, 4),(4, 5),(6, 6)]
-#        sgs_dad = [(2, 7),(4, 8),(6, 9),(1, 10),(3, 11),(5, 12)]
-#        q = 3
-#        sgs_daughter, sgs_son = crossover_sgs_nonrandom(sgs_mum, sgs_dad, q)
-#        self.assertEqual(sgs_daughter, [1,3,2,4,6,5],"Daughter is not correctly generated %s" % str(sgs_daughter))
-#        self.assertEqual(sgs_son, [2,4,6,1,3,5],"Son is not correctly generated %s" % str(sgs_son))
+
+    def test_crossover_sgs_nonrandom_multimode(self):
+        sgs_mum = [(2, 2),(4, 2),(1, 1),(6, 1),(3, 1),(5, 1)]
+        sgs_dad = [(1, 1),(3, 2),(2, 1),(5, 1),(4, 2),(6, 2)]
+        q = 3
+        r = 4
+        sgs_daughter, sgs_son = crossover_sgs_nonrandom_multimode(sgs_mum, sgs_dad, q, r)
+        self.assertEqual(sgs_daughter, [(2, 2),(4, 2),(1, 1),(3, 1),(5, 1),(6, 2)],"Daughter is not correctly generated %s" % str(sgs_daughter))
+        self.assertEqual(sgs_son, [(1,1),(3,2),(2,1),(4,2),(6,1),(5,1)],"Son is not correctly generated %s" % str(sgs_son))
     
         
         

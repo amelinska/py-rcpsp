@@ -61,6 +61,7 @@ def crossover_sgs_nonrandom(sgs_mum, sgs_dad, q):
         sgs_son.append(sgs_mum[j])
     return (sgs_daughter, sgs_son)
 
+
 def mutate_sgs(problem, sgs, prob = 0.05):
     new_sgs = sgs
     for i in xrange(len(new_sgs) - 1):
