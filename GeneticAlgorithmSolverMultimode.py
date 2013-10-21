@@ -54,7 +54,7 @@ class GeneticAlgorithmSolverMultimode(GenericGeneticAlgorithmSolver):
             retries = kwargs['number_of_retries']
         self.SgsMaker = lambda problem : MultiModeSgsMaker(problem, retries)
         self.Solution = Solution
-        super(GeneticAlgorithmSolverMultimode, self).__init__(*args)
+        super(GeneticAlgorithmSolverMultimode, self).__init__(*args) # wywoluje konstruktor klasy bazowej
 
     def evaluate_sgs(self, sgs):
         """

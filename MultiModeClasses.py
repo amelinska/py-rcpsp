@@ -222,7 +222,9 @@ class Problem(BaseProblem):
             if when_activity_ends >= makespan:
                 makespan = when_activity_ends
         return makespan
-    
+
+
+
     def check_if_solution_feasible(self, solution):
         result = self.check_nonrenewable_resources(solution)
         result2 = self.check_renewable_resources(solution)

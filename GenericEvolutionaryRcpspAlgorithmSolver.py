@@ -30,6 +30,9 @@ class GenericGeneticAlgorithmSolver(object):
         return toolbox
 
     def solve(self):
+        """
+        :rtype: MultiModeClasses.Solution
+        """
         toolbox = self.generate_toolbox_for_problem()
         population = toolbox.population(n = self.size_of_population)
         algorithms.eaSimple(population, toolbox, cxpb = self.crossover_probability , mutpb = self.mutation_probability, ngen = self.number_of_generations, verbose=False)

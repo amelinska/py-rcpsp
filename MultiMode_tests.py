@@ -108,6 +108,8 @@ class Test(unittest.TestCase):
         solver = GeneticAlgorithmSolverMultimode(self.problem)
         solution = solver.solve()
         makespan = self.problem.compute_makespan(solution)
+        print makespan
+        print str(solution)
         self.assertEqual(makespan, 13, "Makespan is not equal to 13, in fact it is %d, %s" % (makespan, str(solution)))
 
         
