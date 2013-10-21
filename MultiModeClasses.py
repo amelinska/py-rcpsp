@@ -110,7 +110,7 @@ class Solution(dict):   # fenotyp rozwiazania
         """
         self[activity] = start_time
         self.mode_assigment[activity] = mode
-        
+
         
     def get_start_time(self, activity):
         return self[activity]
@@ -119,7 +119,10 @@ class Solution(dict):   # fenotyp rozwiazania
         return self.mode_assigment[activity]
         
     def __str__(self):
-        return "Solution: " + super.__str__(self)
+        temp = []
+        for activity in self:
+            temp.append("{} ({}) starttime {}".format(activity.name, self.get_mode(activity), self[activity]))
+        return "Solution: " + ", ".join(temp)
     
     def __eq__(self, other):
         if len(self) != len(other):
