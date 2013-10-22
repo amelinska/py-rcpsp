@@ -17,3 +17,6 @@ class TestPSPLibReader(TestCase):
         modelist = [len(act.mode_list) for act in sorted(problem.non_dummy_activities(), key=attrgetter('name'))]
         self.assertEqual(modelist, [1] + 16*[3] + [1])
 
+
+
+

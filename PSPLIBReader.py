@@ -46,7 +46,7 @@ def split_dictionary(input_dict, list_of_prefixes):
         dict_for_prefix = {}
         for key in input_dict:
             if key.startswith(prefix):
-            dict_for_prefix[key] = input_dict[key]
+                dict_for_prefix[key] = input_dict[key]
         result_list.append(dict_for_prefix)
     return result_list
 #TODO test for split_dictionary
@@ -65,13 +65,12 @@ def find_resources_prefixes(list_of_lines_with_prefixes):
 #wy:
 # ("R", "N", "D")
 
-
     result_list = []
-    for line in resuorces_lines:
+    for line in list_of_lines_with_prefixes:
         list_of_tokens = line.split(' ')
         filtered_tokens = [token for token in list_of_tokens if len(token)>0]
-        resuorce_prefix = filtered_tokens[len(filtered_tokens)-1]
-        result_list.append(str(resuorce_prefix))
+        resource_prefix = filtered_tokens[len(filtered_tokens)-1]
+        result_list.append(str(resource_prefix))
     return result_list
 
 
