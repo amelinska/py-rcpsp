@@ -51,6 +51,31 @@ def split_dictionary(input_dict, list_of_prefixes):
     return result_list
 #TODO test for split_dictionary
 
+def find_resources_prefixes(list_of_lines_with_prefixes):
+#we:
+#["projects                      :  1",
+#"jobs (incl. supersource/sink ):  18",
+#horizon                       :  122
+#RESOURCES
+#  - renewable                 :  2   R
+#  - nonrenewable              :  2   N
+#  - doubly constrained        :  0   D
+#]
+
+#wy:
+# ("R", "N", "D")
+
+
+    result_list = []
+    for line in resuorces_lines:
+        list_of_tokens = line.split(' ')
+        filtered_tokens = [token for token in list_of_tokens if len(token)>0]
+        resuorce_prefix = filtered_tokens[len(filtered_tokens)-1]
+        result_list.append(str(resuorce_prefix))
+    return result_list
+
+
+
 class PSPLibReader(object):
     def read(self, filename):
         pass
