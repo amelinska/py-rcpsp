@@ -128,8 +128,26 @@ def find_modes_duration(list_of_lines):
     #
     #output:      _duration
     # {'1': {'1'; 0}, '2': {'1': 1, '2': 1, '3': 9}, '3'},
-    pass
+    number_of_tokens = len(tokenize(list_of_lines[0]))
+    job_dict = {}
+    mode_dict = {}
+    for line in list_of_lines:
+        current_line = tokenize(line)
+        if number_of_tokens == len(current_line):
+            if mode_dict == {}:
+                job_number = current_line[0]
+            else:
+                job_dict[job_number] = mode_dict
+                mode_dict = {}
+                job_number = current_line[0]
+            mode_number = current_line[1]
+            mode_dict[mode_number] = int(current_line[2])
+        else:
+            mode_number = current_line[0]
+            mode_dict[mode_number] = int(current_line[1])
 
+    job_dict[job_number] = mode_dict
+    return job_dict
 
 
 def find_resources_prefixes_paragraph(list_of_paragraph_lines):

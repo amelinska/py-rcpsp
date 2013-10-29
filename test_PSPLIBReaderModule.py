@@ -1,5 +1,5 @@
 from unittest import TestCase
-from PSPLIBReader import read_precedence_relation, read_resources, split_dictionary, find_resources_prefixes, find_resources_prefixes_paragraph
+from PSPLIBReader import read_precedence_relation, read_resources, split_dictionary, find_resources_prefixes, find_resources_prefixes_paragraph, find_modes_duration
 
 
 __author__ = 'Aleksandra'
@@ -49,7 +49,14 @@ class TestRead_precedence_relation(TestCase):
                  "  - doubly constrained        :  0   D"]
         self.assertEqual(find_resources_prefixes_paragraph(lines), ['R', 'N', 'D'])
 
+    def test_find_modes_duration(self):
+        lines = [" 1      1     0       0    0    0    0",\
+                "2      1     1       6    0    0    1",\
+                "       2     1       0   10    8    0",\
+                "       3     9       0    8    8    0" ]
 
+        expected_result = {'1': {'1': 0}, '2': {'1': 1, '2': 1, '3': 9}}
+        self.assertEqual(find_modes_duration(lines), expected_result)
 #wy:
 # ("R", "N", "D")
 
