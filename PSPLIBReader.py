@@ -110,11 +110,27 @@ def find_resources_prefixes(list_of_lines_with_prefixes):
 
     result_list = []
     for line in list_of_lines_with_prefixes:
-        list_of_tokens = line.split(' ')
-        filtered_tokens = [token for token in list_of_tokens if len(token)>0]
+        filtered_tokens = tokenize(line)
         resource_prefix = filtered_tokens[len(filtered_tokens)-1]
         result_list.append(str(resource_prefix))
     return result_list
+
+def find_modes_duration(list_of_lines):
+    #list_of_lines:
+    #["1      1     0       0    0    0    0",
+    # "2      1     1       6    0    0    1",
+    # "       2     1       0   10    8    0",
+    # "       3     9       0    8    8    0",
+    # "3      1     4       6    0    0    5",
+    # "       2     5       0   10    5    0",
+    # "      3     7       0   10    0    4",
+    # ...]
+    #
+    #output:      _duration
+    # {'1': {'1'; 0}, '2': {'1': 1, '2': 1, '3': 9}, '3'},
+    pass
+
+
 
 def find_resources_prefixes_paragraph(list_of_paragraph_lines):
     RESOURES_TAG = "RESOURCES"
