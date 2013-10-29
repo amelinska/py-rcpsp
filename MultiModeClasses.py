@@ -40,10 +40,9 @@ class Mode(object):
         return self.name
     
     def __eq__(self, other):
-        return self.name == other.name
-    
-    def __hash__(self):
-        return hash(self.name)
+        return self.name == other.name and self.duration == other.duration and \
+            self.demand == other.demand and self.non_renewable_demand == other.non_renewable_demand
+
 
 """
 dummy activities has its special null mode.
@@ -76,11 +75,11 @@ class Activity(object):
         return min(x.duration for x in self.mode_list)
 
     
-class Solution(dict):   # fenotyp rozwiazania
+class Solution(dict):
     """
     class represents a solution in the form from which higher level components can
     retrieve basic feature of the solution such as starting times of every task
-    and mode assignment
+    and mode assignment.
 
     Solution class is itself a dictionary which for every activity stores its starting time.
     >>> startTime = solution[activity]

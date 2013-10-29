@@ -1,6 +1,7 @@
 from collections import defaultdict
 import json
 import MultiModeClasses
+from ReaderInterface import ReadingError
 
 
 __author__ = 'bartek'
@@ -19,7 +20,7 @@ class ProjectParser(object):
     def parse(self):
         raise NotImplementedError()
 
-class JSONParsingError(Exception):
+class JSONParsingError(ReadingError):
     pass
 
 

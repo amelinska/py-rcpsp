@@ -1,3 +1,9 @@
+from ReaderInterface import ReadingError
+
+class PSPLibParsingError(ReadingError):
+    pass
+
+
 def find_all_identifiers(result_dict):
     identifier_set = set([])
     for node, list_of_nodes in result_dict.iteritems():
@@ -59,6 +65,14 @@ def tokenize(label_line):
     filtered_tokens = [token for token in label_tokens if len(token) > 0]
     return filtered_tokens
 
+
+def group_identifiers_and_numbers(filtered_tokens):
+    labels = []
+    for i in range(0, len(filtered_tokens), 2):
+        labels.append(filtered_tokens[i] + filtered_tokens[i + 1])
+    return labels
+
+
 def read_resources(label_line, capacity_line):
     """
     :param label_line: line containing labels of resources
@@ -75,9 +89,7 @@ def read_resources(label_line, capacity_line):
     {'R1': 20, 'R2': 26, 'N1': 23, 'N2': 36}
     """
     filtered_tokens = tokenize(label_line)
-    labels = []
-    for i in range(0, len(filtered_tokens), 2):
-        labels.append(filtered_tokens[i] + filtered_tokens[i+1])
+    labels = group_identifiers_and_numbers(filtered_tokens)
 
     capacity_tokens = tokenize(capacity_line)
     return {labels[i] : int(capacity_tokens[i]) for i in range(len(labels))}
@@ -115,6 +127,14 @@ def find_resources_prefixes(list_of_lines_with_prefixes):
         result_list.append(str(resource_prefix))
     return result_list
 
+def parse_modes_paragraph_header(input_line):
+    tokens = tokenize(input_line)
+    if tokens[0] == 'jobnr.' and tokens[1] == 'mode' and tokens[2] == 'duration':
+        return group_identifiers_and_numbers(tokens[3:])
+    else:
+        raise PSPLibParsingError()
+
+
 def find_modes_duration(list_of_lines):
     #list_of_lines:
     #["1      1     0       0    0    0    0",
@@ -148,18 +168,37 @@ def find_modes_duration(list_of_lines):
 
     job_dict[job_number] = mode_dict
     return job_dict
+def read_modes_paragraph(list_of_paragraph_lines):
+    #list_of_paragraph_lines:
+    #["REQUESTS/DURATIONS:",
+    #"jobnr. mode duration  R 1  R 2  N 1  N 2",
+    #"------------------------------------------------------------------------",
+    #"1      1     0       0    0    0    0",
+    # "2      1     1       6    0    0    1",
+    # "       2     1       0   10    8    0",
+    # "       3     9       0    8    8    0",
+    # "3      1     4       6    0    0    5",
+    # "       2     5       0   10    5    0",
+    # "      3     7       0   10    0    4",
+    # ...]
+    #
+    #output:
+    # ['R1','R2','N1','N2'],
+    # {'1': {'1'; 0}, '2': {'1': 1, '2': 1, '3': 9}, ...},
+    # {'1': {'1'; [0, 0, 0, 0]}, '2': {'1': [6, 0, 0, 1], '2': [0, 10, 8, 0], '3': [0, 8, 8, 0]}, ...},
+    pass
 
 
 def find_resources_prefixes_paragraph(list_of_paragraph_lines):
     RESOURES_TAG = "RESOURCES"
-    def line_generator():
+    def lines_from_the_first_line_containing_RESOURCES_TAG():
         found = False
         for l in list_of_paragraph_lines:
             if found:
                 yield l
             if RESOURES_TAG in l:
                 found = True
-    return find_resources_prefixes(line_generator())
+    return find_resources_prefixes(lines_from_the_first_line_containing_RESOURCES_TAG())
 
 def read_resources_paragraph(list_of_paragraph_lines):
     return read_resources(list_of_paragraph_lines[1], list_of_paragraph_lines[2])
