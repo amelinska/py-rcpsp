@@ -1,5 +1,5 @@
 from unittest import TestCase
-from PSPLIBReader import read_precedence_relation, read_resources, split_dictionary, find_resources_prefixes, find_resources_prefixes_paragraph, find_modes_duration, parse_modes_paragraph_header, PSPLibParsingError, read_modes_paragraph
+from PSPLIBReader import read_precedence_relation, read_resources, split_dictionary, find_resources_prefixes, find_resources_prefixes_paragraph, find_modes_duration, parse_modes_paragraph_header, PSPLibParsingError, read_modes_paragraph, find_modes_demand
 
 
 __author__ = 'Aleksandra'
@@ -58,6 +58,15 @@ class TestRead_precedence_relation(TestCase):
         expected_result = {'1': {'1': 0}, '2': {'1': 1, '2': 1, '3': 9}}
         self.assertEqual(find_modes_duration(lines), expected_result)
 
+    def test_find_modes_duration_lacking_mode_causes_exception(self):
+        lines = [" 1      1     0       0    0    0    0",\
+                "2      1     1       6    0    0    1",\
+                "             1       0   10    8    0",\
+                "       3     9       0    8    8    0" ]
+
+        with self.assertRaises(PSPLibParsingError):
+            find_modes_duration(lines)
+
     def test_parse_modes_paragraph_header(self):
         input_line = "jobnr. mode duration  R 1  R 2  N 1  N 2"
         resource_sequence = parse_modes_paragraph_header(input_line)
@@ -84,6 +93,15 @@ class TestRead_precedence_relation(TestCase):
 
         result = read_modes_paragraph(list_of_paragraph_lines)
         self.assertEqual(result, expected_result)
+
+    def test_find_modes_demand(self):
+        lines = [" 1      1     0       0    0    0    0",\
+        "2      1     1       6    0    0    1",\
+        "       2     1       0   10    8    0",\
+        "       3     9       0    8    8    0" ]
+        expected_result = {'1': {'1':[0, 0, 0, 0]}, '2': {'1': [6, 0, 0, 1], '2': [0, 10, 8, 0], '3': [0, 8, 8, 0]}}
+        self.assertEqual(find_modes_demand(lines), expected_result)
+
 
 
 #wy:

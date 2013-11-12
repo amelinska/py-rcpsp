@@ -134,6 +134,31 @@ def parse_modes_paragraph_header(input_line):
     else:
         raise PSPLibParsingError()
 
+def find_modes_lines_generic(list_of_lines, fun):
+    number_of_tokens = len(tokenize(list_of_lines[0]))
+    job_dict = {}
+    mode_dict = {}
+    for line in list_of_lines:
+        current_line = tokenize(line)
+        if number_of_tokens == len(current_line):
+            #definition of new job (activity) starts
+            if mode_dict == {}:
+                job_number = current_line[0]
+            else:
+                job_dict[job_number] = mode_dict
+                mode_dict = {}
+                job_number = current_line[0]
+            mode_number = current_line[1]
+            mode_dict[mode_number] = fun(current_line, 2)
+        elif number_of_tokens - 1 == len(current_line):
+            #it is line containing only mode (not a definition of new activity)
+            mode_number = current_line[0]
+            mode_dict[mode_number] = fun(current_line, 1)
+        else:
+            raise PSPLibParsingError("line is to short")
+
+    job_dict[job_number] = mode_dict
+    return job_dict
 
 def find_modes_duration(list_of_lines):
     #list_of_lines:
@@ -148,27 +173,31 @@ def find_modes_duration(list_of_lines):
     #
     #output:      _duration
     # {'1': {'1'; 0}, '2': {'1': 1, '2': 1, '3': 9}, '3'},
-    number_of_tokens = len(tokenize(list_of_lines[0]))
-    job_dict = {}
-    mode_dict = {}
-    for line in list_of_lines:
-        current_line = tokenize(line)
-        if number_of_tokens == len(current_line):
-            if mode_dict == {}:
-                job_number = current_line[0]
-            else:
-                job_dict[job_number] = mode_dict
-                mode_dict = {}
-                job_number = current_line[0]
-            mode_number = current_line[1]
-            mode_dict[mode_number] = int(current_line[2])
-        else:
-            mode_number = current_line[0]
-            mode_dict[mode_number] = int(current_line[1])
+    def to_int_on_the_position(line, position):
+        return int(line[position])
+    return find_modes_lines_generic(list_of_lines, to_int_on_the_position)
 
-    job_dict[job_number] = mode_dict
-    return job_dict
+
+def find_modes_demand(list_of_lines):
+    #list_of_paragraph_lines:
+    #["1      1     0       0    0    0    0",
+    # "2      1     1       6    0    0    1",
+    # "       2     1       0   10    8    0",
+    # "       3     9       0    8    8    0",
+    # "3      1     4       6    0    0    5",
+    # "       2     5       0   10    5    0",
+    # "      3     7       0   10    0    4",
+    # ...]
+    #
+    #output:
+    # {'1': {'1'; [0, 0, 0, 0]}, '2': {'1': [6, 0, 0, 1], '2': [0, 10, 8, 0], '3': [0, 8, 8, 0]}, ...}
+    def map_tokens_to_list_of_ints_from_postion_to_end(line, position):
+        return [int(x) for x in line[position+1:]]
+    return find_modes_lines_generic(list_of_lines, map_tokens_to_list_of_ints_from_postion_to_end)
+
+
 def read_modes_paragraph(list_of_paragraph_lines):
+    pass
     #list_of_paragraph_lines:
     #["REQUESTS/DURATIONS:",
     #"jobnr. mode duration  R 1  R 2  N 1  N 2",
@@ -186,7 +215,12 @@ def read_modes_paragraph(list_of_paragraph_lines):
     # ['R1','R2','N1','N2'],
     # {'1': {'1'; 0}, '2': {'1': 1, '2': 1, '3': 9}, ...},
     # {'1': {'1'; [0, 0, 0, 0]}, '2': {'1': [6, 0, 0, 1], '2': [0, 10, 8, 0], '3': [0, 8, 8, 0]}, ...},
-    pass
+    #pass
+    labels = parse_modes_paragraph_header(list_of_paragraph_lines[1])
+    duration_assignment = find_modes_duration(list_of_paragraph_lines[3:])
+    demand = find_modes_demand(list_of_paragraph_lines[3:])
+    return labels, duration_assignment, demand
+    #return labels, duration_assignment
 
 
 def find_resources_prefixes_paragraph(list_of_paragraph_lines):
