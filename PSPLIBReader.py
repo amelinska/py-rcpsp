@@ -155,6 +155,7 @@ def find_modes_lines_generic(list_of_lines, fun):
             mode_number = current_line[0]
             mode_dict[mode_number] = fun(current_line, 1)
         else:
+            #no other types of lines are expected
             raise PSPLibParsingError("line is to short")
 
     job_dict[job_number] = mode_dict
