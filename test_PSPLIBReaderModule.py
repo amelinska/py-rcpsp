@@ -1,5 +1,5 @@
 from unittest import TestCase
-from PSPLIBReader import read_precedence_relation, read_resources, split_dictionary, find_resources_prefixes, find_resources_prefixes_paragraph, find_modes_duration, parse_modes_paragraph_header, PSPLibParsingError, read_modes_paragraph, find_modes_demand
+from PSPLIBReader import read_precedence_relation, read_resources, split_dictionary, find_resources_prefixes, find_resources_prefixes_paragraph, find_modes_duration, parse_modes_paragraph_header, PSPLibParsingError, read_modes_paragraph, find_modes_demand, split_list_of_strings_by_predicate
 
 
 __author__ = 'Aleksandra'
@@ -101,6 +101,14 @@ class TestRead_precedence_relation(TestCase):
         "       3     9       0    8    8    0" ]
         expected_result = {'1': {'1':[0, 0, 0, 0]}, '2': {'1': [6, 0, 0, 1], '2': [0, 10, 8, 0], '3': [0, 8, 8, 0]}}
         self.assertEqual(find_modes_demand(lines), expected_result)
+
+    def test_split_list_of_strings_by_predicate(self):
+        lines = ['cfg', '***','ab','cd','***', 'ij', 'kl', '***', 'cfg']
+        iters = split_list_of_strings_by_predicate(lines, lambda x : '***' in x)
+        self.assertEqual(['cfg'], iters[0])
+        self.assertEqual(['ab', 'cd'], iters[1])
+        self.assertEqual(['ij', 'kl'], iters[2])
+        self.assertEqual(['cfg'], iters[3])
 
 
 

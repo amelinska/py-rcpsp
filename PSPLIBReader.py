@@ -1,3 +1,4 @@
+import itertools
 from ReaderInterface import ReadingError
 
 class PSPLibParsingError(ReadingError):
@@ -11,7 +12,6 @@ def find_all_identifiers(result_dict):
         for identifier in list_of_nodes:
             identifier_set.add(identifier)
     return identifier_set
-
 
 def find_start_end_tuple(result_dict):
     all_identifiers = find_all_identifiers(result_dict)
@@ -36,7 +36,10 @@ def find_start_end_tuple(result_dict):
 
     return starts[0], ends[0]
 
-
+def read_precedence_paragraph(list_of_lines):
+    mode_graph = read_precedence_relation(itertools.islice(list_of_lines, 2, None))
+    start, end = find_start_end_tuple(mode_graph)
+    return mode_graph, start, end
 
 def read_precedence_relation(precedence_relation_section_lines):
     """
@@ -65,13 +68,11 @@ def tokenize(label_line):
     filtered_tokens = [token for token in label_tokens if len(token) > 0]
     return filtered_tokens
 
-
 def group_identifiers_and_numbers(filtered_tokens):
     labels = []
     for i in range(0, len(filtered_tokens), 2):
         labels.append(filtered_tokens[i] + filtered_tokens[i + 1])
     return labels
-
 
 def read_resources(label_line, capacity_line):
     """
@@ -109,6 +110,12 @@ def split_dictionary(input_dict, list_of_prefixes):
                 dict_for_prefix[key] = input_dict[key]
         result_list.append(dict_for_prefix)
     return result_list
+
+def read_resources_names_paragraph(list_of_lines):
+    return find_resources_prefixes(
+        itertools.islice(itertools.dropwhile(lambda x : "RESOURCES" in x, list_of_lines), 1, None)
+    )
+
 
 def find_resources_prefixes(list_of_lines_with_prefixes):
     #input:
@@ -238,7 +245,24 @@ def find_resources_prefixes_paragraph(list_of_paragraph_lines):
 def read_resources_paragraph(list_of_paragraph_lines):
     return read_resources(list_of_paragraph_lines[1], list_of_paragraph_lines[2])
 
+def split_list_of_strings_by_predicate(list_of_lines, predicate):
+    result = []
+    temporary_buffer = []
+
+    for number, l in enumerate(list_of_lines):
+        if predicate(l):
+            result.append(temporary_buffer)
+            temporary_buffer = []
+        else:
+            temporary_buffer.append(l)
+    result.append(temporary_buffer)
+    return [l for l in result if l != []]
 
 class PSPLibReader(object):
     def read(self, filename):
-        pass
+        with open(filename, "r") as projectFile:
+            paragraphs = split_list_of_strings_by_predicate(projectFile, lambda x : '****' in x)
+            res_prefixes = find_resources_prefixes_paragraph(paragraphs[1])
+            graph, start, stop = read_precedence_paragraph(paragraphs[3])
+            resource_labels, duration_assignment, demand_assignment = read_modes_paragraph(paragraphs[4])
+            resource_supply_dictionary = read_resources_paragraph(paragraphs[5])
