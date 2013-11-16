@@ -1,4 +1,5 @@
 import itertools
+from MultiModeClasses import Mode, Activity, Problem
 from ReaderInterface import ReadingError
 
 class PSPLibParsingError(ReadingError):
@@ -258,6 +259,42 @@ def split_list_of_strings_by_predicate(list_of_lines, predicate):
     result.append(temporary_buffer)
     return [l for l in result if l != []]
 
+def make_activities_dictionary(resource_labels, res_prefixes, duration_assignment, demand_assignment):
+    activity_dictionary = {}
+    for activity, duration_dictionary in duration_assignment.iteritems():
+        demand_dictionary = demand_assignment[activity]
+        mode_list = []
+        for mode_name in duration_dictionary:
+            mode_duration = duration_dictionary[mode_name]
+            mode_demand = demand_dictionary[mode_name]
+            demand = {key: value for key, value in zip(resource_labels, mode_demand)}
+            renewable_demand, non_renewable_demand = split_dictionary(demand, res_prefixes)
+            mode_list.append(Mode(mode_name, mode_duration, renewable_demand, non_renewable_demand))
+        activity_dictionary[activity] = Activity(activity, mode_list)
+    return activity_dictionary
+
+
+def get_activity_or_raise_parsing_error(activity_dictionary, label, end_label):
+    if label == end_label:
+        return Activity.DUMMY_END
+    try:
+        return activity_dictionary[label]
+    except KeyError:
+        raise PSPLibParsingError("source is not starting, and cannot be found in activity dictionary")
+
+def make_activity_graph(graph, start, stop, activity_dictionary):
+    activity_graph = {}
+    for source, ends in graph.iteriterms():
+        if source == start:
+            source_activity = Activity.DUMMY_START
+        else:
+            source_activity = get_activity_or_raise_parsing_error(activity_dictionary, source, stop)
+
+        endlist = [get_activity_or_raise_parsing_error(activity_dictionary, label, stop) for label in ends]
+
+        activity_graph[source_activity] = endlist
+    return activity_graph
+
 class PSPLibReader(object):
     def read(self, filename):
         with open(filename, "r") as projectFile:
@@ -266,3 +303,8 @@ class PSPLibReader(object):
             graph, start, stop = read_precedence_paragraph(paragraphs[3])
             resource_labels, duration_assignment, demand_assignment = read_modes_paragraph(paragraphs[4])
             resource_supply_dictionary = read_resources_paragraph(paragraphs[5])
+            activity_dictionary = make_activities_dictionary(resource_labels, res_prefixes, duration_assignment,
+                                                             demand_assignment)
+            activity_graph = make_activity_graph(graph, start, stop, activity_dictionary)
+            renewable_demand, non_renewable_demand = split_dictionary(resource_supply_dictionary, res_prefixes)
+            return Problem(activity_graph, renewable_demand, non_renewable_demand)
