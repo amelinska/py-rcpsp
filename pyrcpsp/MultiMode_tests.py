@@ -4,60 +4,62 @@ Created on 31 Jul 2013
 @author: Aleksandra
 '''
 import unittest
-from GeneticAlgorithmSolverMultimode import crossover_sgs_nonrandom_multimode, GeneticAlgorithmSolverMultimode
+#from pyrcpsp.GeneticAlgorithmSolverMultimode import crossover_sgs_nonrandom_multimode
+#from pyrcpsp import NaiveGeneticAlgorithmSolverMultiMode, GeneticAlgorithmSolverMultimode
 
-from MultiModeClasses import Mode, Activity, Solution, Problem, MultiModeSgsMaker
-from NaiveGeneticAlgorithmSolverMultiMode import NaiveGeneticAlgorithmSolverMultiMode
-                                             
+#from pyrcpsp.MultiModeClasses import Mode, Activity, Solution, Problem, MultiModeSgsMaker
+from pyrcpsp import GeneticAlgorithmSolverMultimode as MultiModeSolver
+from pyrcpsp import MultiModeClasses
+from pyrcpsp import NaiveGeneticAlgorithmSolverMultiMode as NaiveSolver
 
 class Test(unittest.TestCase):
     
     def setUp(self): #funkcja ktora framework testowy bedzie wykonywala przed kazda funkcja testowa
-        self.mode1=Mode("m1",3,{1:2})
-        self.mode1a=Mode("m1a",23,{1:2})
-        self.activity1 = Activity("a1",[self.mode1, self.mode1a]) 
+        self.mode1=MultiModeClasses.Mode("m1",3,{1:2})
+        self.mode1a=MultiModeClasses.Mode("m1a",23,{1:2})
+        self.activity1 = MultiModeClasses.Activity("a1",[self.mode1, self.mode1a])
         
-        self.mode2=Mode("m2",4,{1:3})
-        self.activity2 = Activity("a2",[self.mode2])
-        self.mode3=Mode("m3",2,{1:4})
-        self.activity3 = Activity("a3",[self.mode3])
-        self.mode4=Mode("m4",2,{1:4})
-        self.activity4 = Activity("a4",[self.mode4])
-        self.mode5=Mode("m5",1,{1:3})
-        self.activity5 = Activity("a5",[self.mode5])
-        self.mode6=Mode("m6",4,{1:2})
-        self.activity6 = Activity("a6",[self.mode6])
+        self.mode2=MultiModeClasses.Mode("m2",4,{1:3})
+        self.activity2 = MultiModeClasses.Activity("a2",[self.mode2])
+        self.mode3=MultiModeClasses.Mode("m3",2,{1:4})
+        self.activity3 = MultiModeClasses.Activity("a3",[self.mode3])
+        self.mode4=MultiModeClasses.Mode("m4",2,{1:4})
+        self.activity4 = MultiModeClasses.Activity("a4",[self.mode4])
+        self.mode5=MultiModeClasses.Mode("m5",1,{1:3})
+        self.activity5 = MultiModeClasses.Activity("a5",[self.mode5])
+        self.mode6=MultiModeClasses.Mode("m6",4,{1:2})
+        self.activity6 = MultiModeClasses.Activity("a6",[self.mode6])
         
-        self.non_mode1=Mode("m1",3,{1:2},{1:1})
-        self.non_mode1a=Mode("m1a",23,{1:2},{1:9})
-        self.non_activity1 = Activity("a1",[self.non_mode1, self.non_mode1a]) 
-        self.non_mode2=Mode("m2",4,{1:3},{1:1})
-        self.non_activity2 = Activity("a2",[self.non_mode2])
-        self.non_mode3=Mode("m3",2,{1:4})
+        self.non_mode1 = MultiModeClasses.Mode("m1",3,{1:2},{1:1})
+        self.non_mode1a = MultiModeClasses.Mode("m1a",23,{1:2},{1:9})
+        self.non_activity1 = MultiModeClasses.Activity("a1",[self.non_mode1, self.non_mode1a])
+        self.non_mode2 = MultiModeClasses.Mode("m2",4,{1:3},{1:1})
+        self.non_activity2 = MultiModeClasses.Activity("a2",[self.non_mode2])
+        self.non_mode3 = MultiModeClasses.Mode("m3",2,{1:4})
 
-        self.non_activity3 = Activity("a3",[self.non_mode3])
-        self.non_mode4=Mode("m4",2,{1:4})
-        self.non_activity4 = Activity("a4",[self.non_mode4])
-        self.non_mode5=Mode("m5",1,{1:3})
-        self.non_activity5 = Activity("a5",[self.non_mode5])
-        self.non_mode6=Mode("m6",4,{1:2})
-        self.non_activity6 = Activity("a6",[self.non_mode6])
+        self.non_activity3 = MultiModeClasses.Activity("a3",[self.non_mode3])
+        self.non_mode4 = MultiModeClasses.Mode("m4",2,{1:4})
+        self.non_activity4 = MultiModeClasses.Activity("a4",[self.non_mode4])
+        self.non_mode5 = MultiModeClasses.Mode("m5",1,{1:3})
+        self.non_activity5 = MultiModeClasses.Activity("a5",[self.non_mode5])
+        self.non_mode6 = MultiModeClasses.Mode("m6",4,{1:2})
+        self.non_activity6 = MultiModeClasses.Activity("a6",[self.non_mode6])
     
-        activity_graph = {Activity.DUMMY_START:[self.activity1,self.activity2],
+        activity_graph = {MultiModeClasses.Activity.DUMMY_START:[self.activity1,self.activity2],
                           self.activity1:[self.activity3], 
                           self.activity3:[self.activity5], 
                           self.activity2:[self.activity4],
                           self.activity4:[self.activity6],
-                          self.activity5:[Activity.DUMMY_END],
-                          self.activity6:[Activity.DUMMY_END]}
+                          self.activity5:[MultiModeClasses.Activity.DUMMY_END],
+                          self.activity6:[MultiModeClasses.Activity.DUMMY_END]}
         
         resources = {1:4}
         nonrenewable = {1:3}
         
-        self.problem = Problem(activity_graph, resources)
-        self.non_problem = Problem(activity_graph, resources, nonrenewable)
+        self.problem = MultiModeClasses.Problem(activity_graph, resources)
+        self.non_problem = MultiModeClasses.Problem(activity_graph, resources, nonrenewable)
         
-        self.start_times = Solution()
+        self.start_times = MultiModeClasses.Solution()
         self.start_times.set_start_time_for_activity(self.activity1, 6, self.mode1)
         self.start_times.set_start_time_for_activity(self.activity2, 0, self.mode2)
         self.start_times.set_start_time_for_activity(self.activity3, 10, self.mode3)
@@ -65,7 +67,7 @@ class Test(unittest.TestCase):
         self.start_times.set_start_time_for_activity(self.activity5, 12, self.mode5)
         self.start_times.set_start_time_for_activity(self.activity6, 6, self.mode6)
         
-        self.non_renewable_feasible_solution = Solution()
+        self.non_renewable_feasible_solution = MultiModeClasses.Solution()
         self.non_renewable_feasible_solution.set_start_time_for_activity(self.non_activity1, 6, self.non_mode1)
         self.non_renewable_feasible_solution.set_start_time_for_activity(self.non_activity2, 0, self.non_mode2)
         self.non_renewable_feasible_solution.set_start_time_for_activity(self.non_activity3, 10, self.non_mode3)
@@ -74,7 +76,7 @@ class Test(unittest.TestCase):
         self.non_renewable_feasible_solution.set_start_time_for_activity(self.non_activity6, 6, self.non_mode6)
                        
         
-        self.non_renewable_unfeasible_solution = Solution()
+        self.non_renewable_unfeasible_solution = MultiModeClasses.Solution()
         self.non_renewable_unfeasible_solution.set_start_time_for_activity(self.non_activity1, 6, self.non_mode1a)
         self.non_renewable_unfeasible_solution.set_start_time_for_activity(self.non_activity2, 0, self.non_mode2)
         self.non_renewable_unfeasible_solution.set_start_time_for_activity(self.non_activity3, 10, self.non_mode3)
@@ -99,13 +101,13 @@ class Test(unittest.TestCase):
         
         
     def test_solve_naive(self):
-        solver = NaiveGeneticAlgorithmSolverMultiMode(self.problem)
+        solver = NaiveSolver.NaiveGeneticAlgorithmSolverMultiMode(self.problem)
         solution = solver.solve()
         makespan = self.problem.compute_makespan(solution)
         self.assertEqual(makespan, 13, "Makespan is not equal to 13, in fact it is %d, %s" % (makespan, str(solution)))
 
     def test_solve(self):
-        solver = GeneticAlgorithmSolverMultimode(self.problem)
+        solver = MultiModeSolver.GeneticAlgorithmSolverMultimode(self.problem)
         solution = solver.solve()
         makespan = self.problem.compute_makespan(solution)
         print makespan
@@ -131,7 +133,7 @@ class Test(unittest.TestCase):
         self.assertEqual(makespan, 13, "Makespan is not equal to 13")
     
     def test_sgs_2_dict(self):
-        solution = Solution.generate_solution_from_serial_schedule_generation_scheme(self.sgs, self.problem)
+        solution = MultiModeClasses.Solution.generate_solution_from_serial_schedule_generation_scheme(self.sgs, self.problem)
         self.assertEqual(solution, self.start_times, "Expected %s, got %s" % (self.start_times, solution) )  
 
     def test_compute_latest_start(self):
@@ -139,8 +141,8 @@ class Test(unittest.TestCase):
         self.assertEqual(latest_start, 30, "Latest start of the first activity should be 10 and is %d" % (latest_start))
        
     def test_solution_equality(self):
-        s = Solution()
-        o = Solution()
+        s = MultiModeClasses.Solution()
+        o = MultiModeClasses.Solution()
         s.set_start_time_for_activity(self.activity1, 5, self.mode1a)
         s.set_start_time_for_activity(self.activity2, 3, self.mode2)
         
@@ -149,8 +151,8 @@ class Test(unittest.TestCase):
         self.assertEqual(s, o, "These solutions should be equal %s, %s" % (str(s), str(o)))
     
     def test_solution_inequality(self):
-        s = Solution()
-        o = Solution()
+        s = MultiModeClasses.Solution()
+        o = MultiModeClasses.Solution()
         s.set_start_time_for_activity(self.activity1, 5, self.mode1)
         s.set_start_time_for_activity(self.activity2, 3, self.mode2)
         
@@ -159,7 +161,7 @@ class Test(unittest.TestCase):
         self.assertFalse(s == o, "These solutions should be not equal %s, %s" % (str(s), str(o)))
 
     def test_generate_random_sgs_from_problem(self):
-        generator = MultiModeSgsMaker(self.problem,4)
+        generator = MultiModeClasses.MultiModeSgsMaker(self.problem,4)
         sgs_to_return = generator.generate_random_sgs()
         self.assertEqual(set([x[0] for x in sgs_to_return]), self.problem.non_dummy_activities(), "Sgs should have all activities")
         n = len(sgs_to_return)     
@@ -170,7 +172,7 @@ class Test(unittest.TestCase):
         sgs_dad = [(1, 1),(3, 2),(2, 1),(5, 1),(4, 2),(6, 2)]
         q = 3
         r = 4
-        sgs_daughter, sgs_son = crossover_sgs_nonrandom_multimode(sgs_mum, sgs_dad, q, r)
+        sgs_daughter, sgs_son = MultiModeSolver.crossover_sgs_nonrandom_multimode(sgs_mum, sgs_dad, q, r)
         self.assertEqual(sgs_daughter, [(2, 2),(4, 2),(1, 1),(3, 1),(5, 1),(6, 2)],"Daughter is not correctly generated %s" % str(sgs_daughter))
         self.assertEqual(sgs_son, [(1,1),(3,2),(2,1),(4,2),(6,1),(5,1)],"Son is not correctly generated %s" % str(sgs_son))
     

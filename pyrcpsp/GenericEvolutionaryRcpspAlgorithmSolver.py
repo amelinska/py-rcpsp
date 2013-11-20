@@ -1,4 +1,4 @@
-from copy import copy
+import copy
 from deap import base, creator, tools, algorithms
 
 __author__ = 'bartek'
@@ -25,7 +25,7 @@ class GenericGeneticAlgorithmSolver(object):
         toolbox.register("mate", self.crossover_sgs)
         toolbox.register("mutate", lambda sgs: self.mutate_sgs(self.problem, sgs, prob = 0.05))
         toolbox.register("select", tools.selTournament, tournsize=3)
-        toolbox.register("clone", copy)
+        toolbox.register("clone", copy.copy)
 
         return toolbox
 

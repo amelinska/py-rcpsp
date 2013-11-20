@@ -1,6 +1,6 @@
 from unittest import TestCase
-from PSPLIBReader import find_resources_prefixes
-
+#from pyrcpsp.PSPLIBReader import find_resources_prefixes
+from pyrcpsp import  PSPLIBReader
 
 __author__ = 'Aleksandra'
 
@@ -16,4 +16,4 @@ class TestFind_resources_prefixes(TestCase):
                  '  - doubly constrained        :  0   D']
 
         result_list= ['R','N','D']
-        self.assertEqual(find_resources_prefixes(lines), result_list)
+        self.assertEqual(PSPLIBReader.find_resources_prefixes(lines), result_list)

@@ -1,7 +1,13 @@
-from collections import defaultdict
+#from collections import defaultdict
+#import json
+#from pyrcpsp.ReaderInterface import ReadingError
+#from pyrcpsp import MultiModeClasses
+
+import collections
 import json
-import MultiModeClasses
-from ReaderInterface import ReadingError
+from pyrcpsp import ReaderInterface
+from pyrcpsp import MultiModeClasses
+
 
 
 __author__ = 'bartek'
@@ -20,7 +26,7 @@ class ProjectParser(object):
     def parse(self):
         raise NotImplementedError()
 
-class JSONParsingError(ReadingError):
+class JSONParsingError(ReaderInterface.ReadingError):
     pass
 
 
@@ -106,7 +112,7 @@ class MultimodeParser(ProjectParser):
         return MultiModeClasses.Problem(activity_graph, renewable_resources, non_renewable_resources)
 
     def _createGraph(self, activity_dictionary, relation_dictionary):
-        resulting_graph = defaultdict(list)
+        resulting_graph = collections.defaultdict(list)
         for preceding_activity, list_of_next in relation_dictionary:
             try:
                 for successor in list_of_next:

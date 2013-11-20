@@ -2,11 +2,12 @@ import collections
 import copy
 import random
 from random import choice
-from BaseProblem import BaseProblem
-from GeneticAlgorithmSolver import SerialScheduleGenerationSchemeGenerator
+#from pyrcpsp.GeneticAlgorithmSolver import SerialScheduleGenerationSchemeGenerator
+#from pyrcpsp import ResourceUsage, BaseProblem, ListUtilities
 
-import ResourceUsage
-import ListUtilities
+from pyrcpsp import GeneticAlgorithmSolver
+from pyrcpsp import ResourceUsage, BaseProblem, ListUtilities
+
 
 def activity_in_conflict_in_precedence(problem, solution, activity, proposed_start_time):
     """
@@ -168,7 +169,7 @@ Activity.DUMMY_START = Activity("start",[Mode.nullMode])
 Activity.DUMMY_END = Activity("end",[Mode.nullMode])
 Activity.DUMMY_NODES = [Activity.DUMMY_START, Activity.DUMMY_END]
 
-class Problem(BaseProblem):
+class Problem(BaseProblem.BaseProblem):
     def __init__(self, activity_graph, resources, nonrenewable_resources = {}):
         self.ActivityClass = Activity
         self.activity_graph = activity_graph
@@ -276,7 +277,7 @@ class MultiModeSgsMaker(object):
     def __init__(self, problem, retries):
         self.problem = problem
         self.retries = retries
-        self.generator = SerialScheduleGenerationSchemeGenerator(problem)
+        self.generator = GeneticAlgorithmSolver.SerialScheduleGenerationSchemeGenerator(problem)
 
     def generate_random_sgs(self):
         sgs = self.generator.generate_random_sgs()

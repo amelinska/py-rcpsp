@@ -3,14 +3,16 @@ Created on 17 Aug 2013
 
 @author: Aleksandra
 '''
-from GenericEvolutionaryRcpspAlgorithmSolver import GenericGeneticAlgorithmSolver
-from SingleModeClasses import Solution
-from deap import base, creator, tools, algorithms
-from random import randint, random, choice
-from copy import copy
+import random
+import copy
 
-creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-creator.create("Individual", list, fitness=creator.FitnessMin)
+import deap
+from pyrcpsp import GenericEvolutionaryRcpspAlgorithmSolver as evoSolver
+from pyrcpsp import SingleModeClasses
+
+
+deap.creator.create("FitnessMin", deap.base.Fitness, weights=(-1.0,))
+deap.creator.create("Individual", list, fitness=deap.creator.FitnessMin)
 
 class SerialScheduleGenerationSchemeGenerator:
     def __init__(self, problem):
@@ -30,7 +32,7 @@ class SerialScheduleGenerationSchemeGenerator:
         
         
     def _extract_random_activity_from_list(self, ready_to_schedule):
-        r = choice(list(ready_to_schedule))
+        r = random.choice(list(ready_to_schedule))
         ready_to_schedule.remove(r)
         return r
     
@@ -44,13 +46,13 @@ class SerialScheduleGenerationSchemeGenerator:
                 ready_to_schedule.add(activity)
                 
 def crossover_sgs(sgs_mum, sgs_dad):
-        q = randint(0,len(sgs_mum))
+        q = random.randint(0,len(sgs_mum))
         return crossover_sgs_nonrandom(sgs_mum, sgs_dad, q)     
     
 def crossover_sgs_nonrandom(sgs_mum, sgs_dad, q):
     len_of_sgs_mum = len(sgs_mum)
-    sgs_daughter = creator.Individual()
-    sgs_son = creator.Individual()
+    sgs_daughter = deap.creator.Individual()
+    sgs_son = deap.creator.Individual()
     for i in xrange(q):
         sgs_daughter.append(sgs_mum[i])
         sgs_son.append(sgs_dad[i])
@@ -65,20 +67,20 @@ def crossover_sgs_nonrandom(sgs_mum, sgs_dad, q):
 def mutate_sgs(problem, sgs, prob = 0.05):
     new_sgs = sgs
     for i in xrange(len(new_sgs) - 1):
-        copy_of_sgs = copy(new_sgs)
-        if random() < prob:
+        copy_of_sgs = copy.copy(new_sgs)
+        if random.random() < prob:
             copy_of_sgs[i] = new_sgs[i+1]
             copy_of_sgs[i+1] = new_sgs[i]
         if problem.is_valid_sgs(copy_of_sgs):
             new_sgs = copy_of_sgs
     return (new_sgs,)
 
-class GeneticAlgorithmSolver(GenericGeneticAlgorithmSolver):
+class GeneticAlgorithmSolver(evoSolver.GenericGeneticAlgorithmSolver):
     def __init__(self, *args):
         self.crossover_sgs = crossover_sgs
         self.mutate_sgs = mutate_sgs
         self.SgsMaker = SerialScheduleGenerationSchemeGenerator
-        self.Solution = Solution
+        self.Solution = SingleModeClasses.Solution
         super(GeneticAlgorithmSolver, self).__init__(*args)
 
 def find_lowest_index_non_existing_in(list1, list2):

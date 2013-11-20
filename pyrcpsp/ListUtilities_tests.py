@@ -1,7 +1,8 @@
 import unittest
-import ListUtilities
+from pyrcpsp import ListUtilities
 
-class ListUtiltiesTest(unittest.TestCase):    
+
+class ListUtiltiesTest(unittest.TestCase):
     def test_insert_value_to_ordered_list(self):
         l = [1,3,4,5]
         ListUtilities.insert_value_to_ordered_list(l, 2)

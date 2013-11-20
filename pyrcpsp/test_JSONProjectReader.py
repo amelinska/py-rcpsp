@@ -1,9 +1,11 @@
 import json
 from operator import attrgetter
 from unittest import TestCase
-from JsonProjectReader import JSONProjectReader, ResourceParser, ActivitiesParser, ActivityParser, ModeParser, DummyNodesParser
 import os
-import MultiModeClasses
+
+import JsonProjectReader
+from pyrcpsp import MultiModeClasses
+
 
 __author__ = 'bartek'
 
@@ -12,7 +14,7 @@ FILENAME = 'testFiles/sampleProject.json'
 
 class TestJSONProjectReader(TestCase):
     def test_read(self):
-        jsonReader = JSONProjectReader()
+        jsonReader = JsonProjectReader.JSONProjectReader()
         problem = jsonReader.read(os.path.realpath(FILENAME))
         self.assertIsInstance(problem, MultiModeClasses.Problem)
         self.assertEqual(set([act.name for act in problem.non_dummy_activities()]), set(str(i) for i in range(1,7)))
@@ -26,13 +28,13 @@ class TestJSONProjectReader(TestCase):
 class TestResourceParser(TestCase):
     def test_parse(self):
         jsonDictionary = json.loads("{\"1\": 4}")
-        p = ResourceParser(jsonDictionary)
+        p = JsonProjectReader.ResourceParser(jsonDictionary)
         self.assertEqual(p.parse(), {1: 4})
 
 class TestDummyNodesParser(TestCase):
     def test_parse(self):
         jsonDictionary = json.loads("{\"dummy_start\": \"0\",\"dummy_end\": \"7\"}")
-        p = DummyNodesParser(jsonDictionary)
+        p = JsonProjectReader.DummyNodesParser(jsonDictionary)
         self.assertEqual(p.parse(), ("0","7"))
 
 
@@ -60,7 +62,7 @@ class TestActivitiesParser(TestCase):
         }
         """
         jsonDictionary = json.loads(activities)
-        p = ActivitiesParser(jsonDictionary, dummy_start="d", dummy_end="2")
+        p = JsonProjectReader.ActivitiesParser(jsonDictionary, dummy_start="d", dummy_end="2")
         activity_dictionary = p.parse()
         self.assertEqual(len(activity_dictionary), 3)
         for k, v in activity_dictionary.iteritems():
@@ -86,7 +88,7 @@ class TestActivityParser(TestCase):
             }
             """
         jsonDictionary = json.loads(activity_string)
-        p = ActivityParser("somename", jsonDictionary, dummy_start="0", dummy_end="1")
+        p = JsonProjectReader.ActivityParser("somename", jsonDictionary, dummy_start="0", dummy_end="1")
         a = p.parse()
         self.assertIsInstance(a, MultiModeClasses.Activity)
         self.assertEqual(a.maximal_duration(), 4)
@@ -97,7 +99,7 @@ class TestActivityParser(TestCase):
     def test_parse_dummy(self):
         activity_string = "{}"
         jsonDictionary = json.loads(activity_string)
-        p = ActivityParser("0", jsonDictionary, dummy_start="0", dummy_end="1")
+        p = JsonProjectReader.ActivityParser("0", jsonDictionary, dummy_start="0", dummy_end="1")
         a = p.parse()
         self.assertIsInstance(a, MultiModeClasses.Activity)
         self.assertEqual(a, MultiModeClasses.Activity.DUMMY_START)
@@ -113,7 +115,7 @@ class TestModeParser(TestCase):
         }
         """
         jsonDictionary = json.loads(mode_string)
-        p = ModeParser("somename", jsonDictionary)
+        p = JsonProjectReader.ModeParser("somename", jsonDictionary)
         mode = p.parse()
         self.assertIsInstance(mode, MultiModeClasses.Mode)
         self.assertEqual(mode.demand, {1: 1, 2: 1})

@@ -1,6 +1,6 @@
-from GenericEvolutionaryRcpspAlgorithmSolver import GenericGeneticAlgorithmSolver
-from GeneticAlgorithmSolver import find_lowest_index_non_existing_in, mutate_sgs
-from MultiModeClasses import MultiModeSgsMaker
+from pyrcpsp.GenericEvolutionaryRcpspAlgorithmSolver import GenericGeneticAlgorithmSolver
+from pyrcpsp.GeneticAlgorithmSolver import find_lowest_index_non_existing_in, mutate_sgs
+from pyrcpsp.MultiModeClasses import MultiModeSgsMaker
 
 __author__ = 'bartek'
 '''
@@ -9,10 +9,13 @@ Created on 17 Aug 2013
 @author: Aleksandra
 '''
 
-from MultiModeClasses import Solution
-from deap import creator, base, tools, algorithms
-from copy import copy
-from random import random, randint, choice
+#from pyrcpsp.MultiModeClasses import Solution
+#from deap import creator
+#from random import random, randint, choice
+import random
+import deap
+from pyrcpsp import MultiModeClasses
+
 
 
 def negative_leftover(problem, mode_assignment):
@@ -53,7 +56,7 @@ class GeneticAlgorithmSolverMultimode(GenericGeneticAlgorithmSolver):
         else:
             retries = kwargs['number_of_retries']
         self.SgsMaker = lambda problem : MultiModeSgsMaker(problem, retries)
-        self.Solution = Solution
+        self.Solution = MultiModeClasses.Solution
         super(GeneticAlgorithmSolverMultimode, self).__init__(*args) # wywoluje konstruktor klasy bazowej
 
     def evaluate_sgs(self, sgs):
@@ -66,13 +69,13 @@ class GeneticAlgorithmSolverMultimode(GenericGeneticAlgorithmSolver):
         return evaluate_sgs_function(self.Solution, self.problem, sgs)
 
 def modified_crossover_sgs_multimode(sgs_mum, sgs_dad):
-    q = randint(0,len(sgs_mum))
-    r = randint(0,len(sgs_mum))
+    q = random.randint(0,len(sgs_mum))
+    r = random.randint(0,len(sgs_mum))
     return modified_crossover_sgs_nonrandom_multimode(sgs_mum, sgs_dad, q, r)
 
 def crossover_sgs_multimode(sgs_mum, sgs_dad):
-    q = randint(0,len(sgs_mum))
-    r = randint(0,len(sgs_mum))
+    q = random.randint(0,len(sgs_mum))
+    r = random.randint(0,len(sgs_mum))
     return crossover_sgs_nonrandom_multimode(sgs_mum, sgs_dad, q, r)
 
 def crossover_activity_list_multimode(sgs_mum, sgs_dad, q):
@@ -119,8 +122,8 @@ def modified_crossover_sgs_nonrandom_multimode(sgs_mum, sgs_dad, q, r):
 
     daughter_activity_list, son_activity_list = crossover_activity_list_multimode(activity_list_mum, activity_list_dad, q)
     mode_dict_daughter, mode_dict_son = modified_crossover_mode_list(sgs_mum, sgs_dad, r)
-    result_daughter = creator.Individual()
-    result_son = creator.Individual()
+    result_daughter = deap.creator.Individual()
+    result_son = deap.creator.Individual()
 
     for activity in daughter_activity_list:
         result_daughter.append((activity, mode_dict_daughter[activity]))
@@ -151,8 +154,8 @@ def crossover_sgs_nonrandom_multimode(sgs_mum, sgs_dad, q, r):
     daughter_activity_list, son_activity_list = crossover_activity_list_multimode(activity_list_mum, activity_list_dad, q)
     daughter_mode_list = crossover_mode_dict(daughter_activity_list, sgs_mum_dict, sgs_dad_dict, r)
     son_mode_list = crossover_mode_dict(son_activity_list, sgs_dad_dict, sgs_mum_dict, r)
-    daugher_sgs = creator.Individual()
-    son_sgs = creator.Individual()
+    daugher_sgs = deap.creator.Individual()
+    son_sgs = deap.creator.Individual()
     for el in zip(daughter_activity_list, daughter_mode_list):
         daugher_sgs.append(el)
     for el in zip(son_activity_list, son_mode_list):
@@ -163,11 +166,11 @@ def crossover_sgs_nonrandom_multimode(sgs_mum, sgs_dad, q, r):
 
 def mutate_sgs_multimode(problem, sgs, prob = 0.05):
     (sgs,) = mutate_sgs(problem, sgs, prob)
-    result = creator.Individual()
+    result = deap.creator.Individual()
     for t in sgs:
         activity = t[0]
-        if random() < prob:
-            mode = choice(activity.mode_list)
+        if random.random() < prob:
+            mode = random.choice(activity.mode_list)
         else:
             mode = t[1]
         result.append((activity, mode))

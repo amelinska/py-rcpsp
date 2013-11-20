@@ -1,8 +1,8 @@
 import itertools
-from MultiModeClasses import Mode, Activity, Problem
-from ReaderInterface import ReadingError
+from pyrcpsp import MultiModeClasses
+from pyrcpsp import ReaderInterface
 
-class PSPLibParsingError(ReadingError):
+class PSPLibParsingError(ReaderInterface.ReadingError):
     pass
 
 
@@ -269,14 +269,14 @@ def make_activities_dictionary(resource_labels, res_prefixes, duration_assignmen
             mode_demand = demand_dictionary[mode_name]
             demand = {key: value for key, value in zip(resource_labels, mode_demand)}
             renewable_demand, non_renewable_demand = split_dictionary(demand, res_prefixes)
-            mode_list.append(Mode(mode_name, mode_duration, renewable_demand, non_renewable_demand))
-        activity_dictionary[activity] = Activity(activity, mode_list)
+            mode_list.append(MultiModeClasses.Mode(mode_name, mode_duration, renewable_demand, non_renewable_demand))
+        activity_dictionary[activity] = MultiModeClasses.Activity(activity, mode_list)
     return activity_dictionary
 
 
 def get_activity_or_raise_parsing_error(activity_dictionary, label, end_label):
     if label == end_label:
-        return Activity.DUMMY_END
+        return MultiModeClasses.Activity.DUMMY_END
     try:
         return activity_dictionary[label]
     except KeyError:
@@ -286,7 +286,7 @@ def make_activity_graph(graph, start, stop, activity_dictionary):
     activity_graph = {}
     for source, ends in graph.iteriterms():
         if source == start:
-            source_activity = Activity.DUMMY_START
+            source_activity = MultiModeClasses.Activity.DUMMY_START
         else:
             source_activity = get_activity_or_raise_parsing_error(activity_dictionary, source, stop)
 
@@ -307,4 +307,4 @@ class PSPLibReader(object):
                                                              demand_assignment)
             activity_graph = make_activity_graph(graph, start, stop, activity_dictionary)
             renewable_demand, non_renewable_demand = split_dictionary(resource_supply_dictionary, res_prefixes)
-            return Problem(activity_graph, renewable_demand, non_renewable_demand)
+            return MultiModeClasses.Problem(activity_graph, renewable_demand, non_renewable_demand)

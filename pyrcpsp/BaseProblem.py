@@ -1,5 +1,3 @@
-
-
 __author__ = 'bartek'
 
 class BaseProblem(object):

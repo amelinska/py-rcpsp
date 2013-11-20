@@ -3,16 +3,13 @@ Created on 31 Jul 2013
 
 @author: Aleksandra
 '''
-from random import choice, randint
-from deap import algorithms, tools, base, creator
-from copy import copy
-from collections import defaultdict 
-from bisect import bisect_left
-from BaseProblem import BaseProblem
+import copy
+import collections
 
-from ResourceUsage import update_resource_usages_in_time, ResourceUsage
+#from pyrcpsp.ResourceUsage import update_resource_usages_in_time
 
-import ListUtilities
+from pyrcpsp import ResourceUsage, BaseProblem, ListUtilities
+
 
 class Activity(object):
     def __init__(self, name, duration, demand):
@@ -67,14 +64,14 @@ class Solution(dict):   # fenotyp rozwiazania
     @staticmethod
     def generate_solution_from_serial_schedule_generation_scheme(sgs, problem):
         solution = Solution()
-        resource_usages_in_time = defaultdict(ResourceUsage)
+        resource_usages_in_time = collections.defaultdict(ResourceUsage.ResourceUsage)
         time_points = [0]
         
         for activity in sgs:
             last_time = time_points[-1]
             start_time = 0
             for time_unit in reversed(time_points):
-                actual_resource_usage = copy(resource_usages_in_time[time_unit])
+                actual_resource_usage = copy.copy(resource_usages_in_time[time_unit])
                 actual_resource_usage.add_resource_usage(activity.demand)
                 if (actual_resource_usage.is_resource_usage_greater_than_supply(problem.resources) or (activity_in_conflict_in_precedence(problem, solution, activity, time_unit))):
                     start_time = last_time
@@ -84,10 +81,10 @@ class Solution(dict):   # fenotyp rozwiazania
             solution.set_start_time_for_activity(activity, start_time)
             ListUtilities.insert_value_to_ordered_list(time_points, start_time)
             ListUtilities.insert_value_to_ordered_list(time_points, start_time + activity.duration)         
-            update_resource_usages_in_time(resource_usages_in_time, activity, start_time)
+            ResourceUsage.update_resource_usages_in_time(resource_usages_in_time, activity, start_time)
         return solution         
         
-class Problem(BaseProblem):
+class Problem(BaseProblem.BaseProblem):
     def __init__(self, activity_graph, resources):
         self.ActivityClass = Activity
         self.activity_graph = activity_graph
@@ -98,7 +95,7 @@ class Problem(BaseProblem):
             for nested_act in activity_graph[activity]:
                 self.activities_set.add(nested_act)
                 
-        self.predecessors_dict = defaultdict(list)
+        self.predecessors_dict = collections.defaultdict(list)
         for activity, activity_successors in self.activity_graph.iteritems():
             for successor in activity_successors:
                 self.predecessors_dict[successor].append(activity)
@@ -146,7 +143,7 @@ class Problem(BaseProblem):
     def check_if_solution_feasible(self, solution):
         makespan = self.compute_makespan(solution)
         for i in xrange(makespan):
-            resource_usage = ResourceUsage()
+            resource_usage = ResourceUsage.ResourceUsage()
             for activity, start_time in solution.iteritems():
                 if start_time <= i < start_time + activity.duration:
                     resource_usage.add_resource_usage(activity.demand)
