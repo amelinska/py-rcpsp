@@ -38,9 +38,14 @@ def find_start_end_tuple(result_dict):
     return starts[0], ends[0]
 
 def read_precedence_paragraph(list_of_lines):
-    mode_graph = read_precedence_relation(itertools.islice(list_of_lines, 2, None))
-    start, end = find_start_end_tuple(mode_graph)
+    mode_graph, start, end = read_precedence_relation(itertools.islice(list_of_lines, 2, None))
     return mode_graph, start, end
+
+#TODO: test it and test it callers
+def remove_element_without_successors(result_dict):
+    toRemove = [k for k, v in result_dict.iteritems() if not v]
+    for k in toRemove:
+        del result_dict[k]
 
 def read_precedence_relation(precedence_relation_section_lines):
     """
@@ -57,16 +62,16 @@ def read_precedence_relation(precedence_relation_section_lines):
     """
     result_dict ={}
     for line in precedence_relation_section_lines:
-        list_of_tokens = line.split(' ')
-        filtered_tokens = [token for token in list_of_tokens if len(token)>0]
+        filtered_tokens = tokenize(line)
         result_dict[filtered_tokens[0]]=filtered_tokens[3:]
+    remove_element_without_successors(result_dict)
     start_end_tuple = find_start_end_tuple(result_dict)
     return (result_dict, start_end_tuple[0], start_end_tuple[1])
 
 
 def tokenize(label_line):
     label_tokens = label_line.split(' ')
-    filtered_tokens = [token for token in label_tokens if len(token) > 0]
+    filtered_tokens = [token.strip() for token in label_tokens if len(token.strip()) > 0]
     return filtered_tokens
 
 def group_identifiers_and_numbers(filtered_tokens):
@@ -117,7 +122,7 @@ def read_resources_names_paragraph(list_of_lines):
         itertools.islice(itertools.dropwhile(lambda x : "RESOURCES" in x, list_of_lines), 1, None)
     )
 
-
+#TODO: high coupling between this function and
 def find_resources_prefixes(list_of_lines_with_prefixes):
     #input:
     #       ["  - renewable                 :  2   R",
@@ -126,7 +131,7 @@ def find_resources_prefixes(list_of_lines_with_prefixes):
     #        ]
     #
     #output:
-    # ["R", "N", "D"]
+    # {"R", "N", "D"}
 
     result_list = []
     for line in list_of_lines_with_prefixes:
@@ -268,7 +273,11 @@ def make_activities_dictionary(resource_labels, res_prefixes, duration_assignmen
             mode_duration = duration_dictionary[mode_name]
             mode_demand = demand_dictionary[mode_name]
             demand = {key: value for key, value in zip(resource_labels, mode_demand)}
-            renewable_demand, non_renewable_demand = split_dictionary(demand, res_prefixes)
+            #TODO: high coupling with find_resources_prefixes_function, remove it
+            renewable_demand, non_renewable_demand, doubly_constrained = split_dictionary(demand, res_prefixes)
+            if doubly_constrained:
+                #TODO: implement doubly constrained resources
+                raise AssertionError('Doubly constrained resources not implemented')
             mode_list.append(MultiModeClasses.Mode(mode_name, mode_duration, renewable_demand, non_renewable_demand))
         activity_dictionary[activity] = MultiModeClasses.Activity(activity, mode_list)
     return activity_dictionary
@@ -284,7 +293,7 @@ def get_activity_or_raise_parsing_error(activity_dictionary, label, end_label):
 
 def make_activity_graph(graph, start, stop, activity_dictionary):
     activity_graph = {}
-    for source, ends in graph.iteriterms():
+    for source, ends in graph.iteritems():
         if source == start:
             source_activity = MultiModeClasses.Activity.DUMMY_START
         else:
@@ -306,5 +315,9 @@ class PSPLibReader(object):
             activity_dictionary = make_activities_dictionary(resource_labels, res_prefixes, duration_assignment,
                                                              demand_assignment)
             activity_graph = make_activity_graph(graph, start, stop, activity_dictionary)
-            renewable_demand, non_renewable_demand = split_dictionary(resource_supply_dictionary, res_prefixes)
+            #TODO: high coupling with find_resources_prefixes function
+            renewable_demand, non_renewable_demand, doubly_constrained = split_dictionary(resource_supply_dictionary, res_prefixes)
+            if doubly_constrained:
+                raise AssertionError('No support for doubly constrained resources')
+            #TODO: implement doubly constrained resources
             return MultiModeClasses.Problem(activity_graph, renewable_demand, non_renewable_demand)
